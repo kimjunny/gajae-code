@@ -408,8 +408,18 @@ describe("provider removal core", () => {
 			YAML.stringify({
 				modelBindings: { modelRoles: { plan: "keeper/model-a" } },
 				providers: {
-					"my-oai": { baseUrl: "https://api.example.com/v1", apiKeyEnv: "MY_OAI_KEY", api: "openai-responses", models: [{ id: "gpt-a" }] },
-					keeper: { baseUrl: "https://keep.example/v1", apiKeyEnv: "KEEP_KEY", api: "openai-responses", models: [{ id: "model-a" }] },
+					"my-oai": {
+						baseUrl: "https://api.example.com/v1",
+						apiKeyEnv: "MY_OAI_KEY",
+						api: "openai-responses",
+						models: [{ id: "gpt-a" }],
+					},
+					keeper: {
+						baseUrl: "https://keep.example/v1",
+						apiKeyEnv: "KEEP_KEY",
+						api: "openai-responses",
+						models: [{ id: "model-a" }],
+					},
 				},
 			}),
 		);
@@ -432,7 +442,12 @@ describe("provider removal core", () => {
 	it("normalizes the provider id before matching", async () => {
 		const modelsPath = await tempModelsPath();
 		await writeProviders(modelsPath, {
-			"my-oai": { baseUrl: "https://api.example.com/v1", apiKeyEnv: "K", api: "openai-responses", models: [{ id: "gpt-a" }] },
+			"my-oai": {
+				baseUrl: "https://api.example.com/v1",
+				apiKeyEnv: "K",
+				api: "openai-responses",
+				models: [{ id: "gpt-a" }],
+			},
 		});
 		const result = await removeProvider({ providerId: "  My-OAI ", modelsPath });
 		expect(result.providerId).toBe("my-oai");
@@ -442,7 +457,12 @@ describe("provider removal core", () => {
 	it("drops the providers key when the last provider is removed", async () => {
 		const modelsPath = await tempModelsPath();
 		await writeProviders(modelsPath, {
-			only: { baseUrl: "https://only.example/v1", apiKeyEnv: "ONLY_KEY", api: "openai-responses", models: [{ id: "m" }] },
+			only: {
+				baseUrl: "https://only.example/v1",
+				apiKeyEnv: "ONLY_KEY",
+				api: "openai-responses",
+				models: [{ id: "m" }],
+			},
 		});
 		await removeProvider({ providerId: "only", modelsPath });
 		const parsed = YAML.parse(await Bun.file(modelsPath).text()) as { providers?: unknown };
@@ -453,8 +473,18 @@ describe("provider removal core", () => {
 		tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "gjc-provider-onboarding-"));
 		const modelsPath = path.join(tempRoot, "nested", "custom-models.yml");
 		await writeProviders(modelsPath, {
-			custom: { baseUrl: "https://custom.example/v1", apiKeyEnv: "CUSTOM_KEY", api: "openai-responses", models: [{ id: "m" }] },
-			other: { baseUrl: "https://other.example/v1", apiKeyEnv: "OTHER_KEY", api: "openai-responses", models: [{ id: "n" }] },
+			custom: {
+				baseUrl: "https://custom.example/v1",
+				apiKeyEnv: "CUSTOM_KEY",
+				api: "openai-responses",
+				models: [{ id: "m" }],
+			},
+			other: {
+				baseUrl: "https://other.example/v1",
+				apiKeyEnv: "OTHER_KEY",
+				api: "openai-responses",
+				models: [{ id: "n" }],
+			},
 		});
 		const result = await removeProvider({ providerId: "custom", modelsPath });
 		expect(result.remainingProviders).toEqual(["other"]);
@@ -463,7 +493,12 @@ describe("provider removal core", () => {
 	it("errors when the provider is not configured", async () => {
 		const modelsPath = await tempModelsPath();
 		await writeProviders(modelsPath, {
-			present: { baseUrl: "https://present.example/v1", apiKeyEnv: "P_KEY", api: "openai-responses", models: [{ id: "m" }] },
+			present: {
+				baseUrl: "https://present.example/v1",
+				apiKeyEnv: "P_KEY",
+				api: "openai-responses",
+				models: [{ id: "m" }],
+			},
 		});
 		await expect(removeProvider({ providerId: "ghost", modelsPath })).rejects.toThrow("is not configured");
 	});
@@ -471,7 +506,12 @@ describe("provider removal core", () => {
 	it("errors when the id is a bundled provider not present in user config", async () => {
 		const modelsPath = await tempModelsPath();
 		await writeProviders(modelsPath, {
-			present: { baseUrl: "https://present.example/v1", apiKeyEnv: "P_KEY", api: "openai-responses", models: [{ id: "m" }] },
+			present: {
+				baseUrl: "https://present.example/v1",
+				apiKeyEnv: "P_KEY",
+				api: "openai-responses",
+				models: [{ id: "m" }],
+			},
 		});
 		await expect(removeProvider({ providerId: "anthropic", modelsPath })).rejects.toThrow("bundled provider");
 	});
@@ -511,9 +551,7 @@ describe("provider removal CLI wiring", () => {
 	});
 
 	it("rejects --remove combined with provider add flags", () => {
-		expect(() => resolveProviderRemovalTarget({ remove: "my-oai", preset: "glm" })).toThrow(
-			"cannot be combined",
-		);
+		expect(() => resolveProviderRemovalTarget({ remove: "my-oai", preset: "glm" })).toThrow("cannot be combined");
 		expect(() => resolveProviderRemovalTarget({ remove: "my-oai", model: ["gpt-a"] })).toThrow("--model");
 	});
 });

@@ -1,7 +1,7 @@
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import { getAgentDir } from "@gajae-code/utils";
 import { getBundledProviders } from "@gajae-code/ai";
+import { getAgentDir } from "@gajae-code/utils";
 import { YAML } from "bun";
 import { type ModelsConfig, ModelsConfigSchema } from "../config/models-config-schema";
 
